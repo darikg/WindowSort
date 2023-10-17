@@ -6,6 +6,9 @@ with open('requirements.txt') as f:
 setup(
     name='windowsort',
     version='0.1.0',
+    author='Allen Chen',
+    author_email='allenmuhanchen@gmail.com',
+    url='https://github.com/EdConnorLab/WindowSort',
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     entry_points={

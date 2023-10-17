@@ -24,27 +24,6 @@ CONFIG_PATH = os.path.join(config_dir, config_file)
 os.makedirs(config_dir, exist_ok=True)
 
 
-
-def get_default_directory():
-    """Retrieve the default directory from the configuration file."""
-    config = configparser.ConfigParser()
-    config.read(CONFIG_PATH)
-    return config.get('DEFAULT', 'data_directory', fallback='')
-
-
-def save_default_directory(directory):
-    """Save the parent directory of the given directory to the configuration file."""
-    parent_directory = os.path.dirname(directory)
-
-    config = configparser.ConfigParser()
-    config.read(CONFIG_PATH)
-    if 'DEFAULT' not in config:
-        config['DEFAULT'] = {}
-    config['DEFAULT']['data_directory'] = parent_directory
-    with open(CONFIG_PATH, 'w') as configfile:
-        config.write(configfile)
-
-
 def main():
     app = QApplication(sys.argv)
 
@@ -68,6 +47,26 @@ def main():
     mainWin = MainWindow(data_directory)
     mainWin.show()
     sys.exit(app.exec_())
+
+
+def save_default_directory(directory):
+    """Save the parent directory of the given directory to the configuration file."""
+    parent_directory = os.path.dirname(directory)
+
+    config = configparser.ConfigParser()
+    config.read(CONFIG_PATH)
+    if 'DEFAULT' not in config:
+        config['DEFAULT'] = {}
+    config['DEFAULT']['data_directory'] = parent_directory
+    with open(CONFIG_PATH, 'w') as configfile:
+        config.write(configfile)
+
+
+def get_default_directory():
+    """Retrieve the default directory from the configuration file."""
+    config = configparser.ConfigParser()
+    config.read(CONFIG_PATH)
+    return config.get('DEFAULT', 'data_directory', fallback='')
 
 
 class MainWindow(QMainWindow):
