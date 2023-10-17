@@ -1,31 +1,74 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QApplication, QHBoxLayout
-import sys
+import configparser
 import os
+import sys
+
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QApplication, QHBoxLayout, QFileDialog
 
 from windowsort.datahandler import DataImporter, DataExporter
 from windowsort.drift import DriftSpikePlot, WindowMarkedSlider
 from windowsort.snapshot import SnapshotPlot
-from windowsort.timeamplitudewindow import SortSpikePlot
+from windowsort.spikes import SpikeScrubber, ExportPanel
 from windowsort.units import SortPanel
 from windowsort.voltage import VoltageTimePlot, TimeScrubber, ChannelSelectionPanel, ThresholdControlPanel
-from windowsort.spikes import ThresholdedSpikePlot, SpikeScrubber, ExportPanel
 
-# Main function to run the application
+import appdirs
+
+# Use appdirs to get the appropriate user config directory
+app_name = "WindowSort"
+app_author = "EdConnorLab"
+config_dir = appdirs.user_config_dir(app_name, app_author)
+config_file = "app_config.ini"
+CONFIG_PATH = os.path.join(config_dir, config_file)
+
+# Ensure the config directory exists
+os.makedirs(config_dir, exist_ok=True)
+
+
+
+def get_default_directory():
+    """Retrieve the default directory from the configuration file."""
+    config = configparser.ConfigParser()
+    config.read(CONFIG_PATH)
+    return config.get('DEFAULT', 'data_directory', fallback='')
+
+
+def save_default_directory(directory):
+    """Save the parent directory of the given directory to the configuration file."""
+    parent_directory = os.path.dirname(directory)
+
+    config = configparser.ConfigParser()
+    config.read(CONFIG_PATH)
+    if 'DEFAULT' not in config:
+        config['DEFAULT'] = {}
+    config['DEFAULT']['data_directory'] = parent_directory
+    with open(CONFIG_PATH, 'w') as configfile:
+        config.write(configfile)
+
+
 def main():
     app = QApplication(sys.argv)
 
-    # Define the data directory here
-    date = "2023-10-05"
-    exp_name = "231005_round2"
-    # date = "2023-09-12"
-    # exp_name = "1694529683452000_230912_144921"
-    data_directory = "/home/r2_allen/Documents/JulieIntanData/Cortana/%s/%s/" % (
-    date, exp_name)
-    print("Loading App")
+    # Load the default directory
+    default_directory = get_default_directory()
 
+    # Create a directory selection dialog
+    options = QFileDialog.Options()
+    options |= QFileDialog.ShowDirsOnly
+    data_directory = QFileDialog.getExistingDirectory(None, "Select Data Directory", default_directory, options=options)
+
+    # Check if the user pressed cancel (i.e., data_directory is empty)
+    if not data_directory:
+        print("No directory selected. Exiting.")
+        sys.exit()
+
+    # Save the selected directory as the new default
+    save_default_directory(data_directory)
+
+    print("Loading App")
     mainWin = MainWindow(data_directory)
     mainWin.show()
     sys.exit(app.exec_())
+
 
 class MainWindow(QMainWindow):
     def __init__(self, data_directory):
@@ -66,10 +109,10 @@ class MainWindow(QMainWindow):
         spike_plot_column.addWidget(self.spike_plot)
         self.voltage_time_plot.spike_plot = self.spike_plot
         self.spike_slider = WindowMarkedSlider(self.spike_plot)
-        self.spike_scrubber = SpikeScrubber(self.spike_plot, default_max_spikes=default_max_spikes, slider=self.spike_slider)
+        self.spike_scrubber = SpikeScrubber(self.spike_plot, default_max_spikes=default_max_spikes,
+                                            slider=self.spike_slider)
         spike_plot_column.addWidget(self.spike_scrubber)
         self.spike_plot.spike_scrubber = self.spike_scrubber
-
 
         # Exporting
         self.export_panel = ExportPanel(self.data_exporter)
@@ -98,10 +141,6 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(spike_sort_column)
 
         central_widget.setLayout(main_layout)
-
-
-
-
 
 
 if __name__ == '__main__':

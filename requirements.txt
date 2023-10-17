@@ -4,3 +4,4 @@ PyQt5==5.15.10
 PyQt5_sip
 pyqtgraph==0.13.3
 scipy==1.11.3
+appdirs~=1.4.4
