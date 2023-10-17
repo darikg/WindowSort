@@ -1,0 +1,2 @@
+[console_scripts]
+windowsort = windowsort.gui:main

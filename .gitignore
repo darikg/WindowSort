@@ -1,2 +1,5 @@
 *.iml
 /.idea
+/dist/
+/build/
+src/ConnorLabAnalysisTools.egg-info/
