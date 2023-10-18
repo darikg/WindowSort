@@ -4,7 +4,7 @@ import sys
 
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QApplication, QHBoxLayout, QFileDialog
 
-from windowsort.datahandler import DataImporter, DataExporter, SortingConfigManager
+from windowsort.datahandler import InputDataManager, SortedSpikeExporter, SortingConfigManager
 from windowsort.drift import DriftSpikePlot, WindowMarkedSlider
 from windowsort.snapshot import SnapshotPlot
 from windowsort.spikes import SpikeScrubber, ExportPanel
@@ -74,8 +74,8 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
 
         # Initialize Dependencies
-        self.data_handler = DataImporter(data_directory)
-        self.data_exporter = DataExporter(save_directory=data_directory)
+        self.data_handler = InputDataManager(data_directory)
+        self.data_exporter = SortedSpikeExporter(save_directory=data_directory)
         self.sorting_config_manager = SortingConfigManager(save_directory=data_directory)
 
         # Initialize UI

@@ -12,7 +12,7 @@ from clat.intan.rhd import load_intan_rhd_format
 from windowsort.drift import DriftingTimeAmplitudeWindow
 
 
-class DataImporter:
+class InputDataManager:
     def __init__(self, intan_file_directory):
         self.intan_file_directory = intan_file_directory
         self.voltages_by_channel: dict[Channel, np.ndarray] = {}
@@ -90,7 +90,7 @@ class DataImporter:
         print(f"Preprocessed Data saved to {output_file_path}.")
 
 
-class DataExporter:
+class SortedSpikeExporter:
     def __init__(self, *, save_directory):
         self.thresholded_spike_indices_by_channel = {}  # Keyed by channel, each value is a list of spike times
         self.sorted_spikes_by_unit_by_channel = {}  # Keyed by channel, each value is a dict of unit name to spike times
