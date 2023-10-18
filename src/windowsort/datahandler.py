@@ -135,8 +135,11 @@ class SortedSpikeExporter:
 
 
 class SortingConfigManager:
+    current_sorting_config_path: str = None
+
     def __init__(self, *, save_directory):
         self.save_directory = save_directory
+        self._set_current_sorting_config_path(os.path.join(self.save_directory, "sorting_config.pkl"))
 
     def save_sorting_config(self, channel, amp_time_windows: List[DriftingTimeAmplitudeWindow], units, threshold,
                             extension=None):
@@ -146,8 +149,8 @@ class SortingConfigManager:
         else:
             filename = base_filename + ".pkl"
         filename = os.path.join(self.save_directory, filename)
+        self._set_current_sorting_config_path(filename)
 
-        filename = os.path.join(self.save_directory, filename)
         try:
             with open(filename, 'rb') as f:
                 all_configs = pickle.load(f)
@@ -165,17 +168,27 @@ class SortingConfigManager:
 
         print("Saved sorting configs to: ", filename)
 
-    def open_sorting_config(self, channel: Channel, parent_widget: QWidget):
+    def open_current_sorting_config(self, channel: Channel):
+        return self._open_sorting_config(self.current_sorting_config_path, channel)
+
+    def open_selected_sorting_config(self, channel: Channel, parent_widget: QWidget):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         filename, _ = QFileDialog.getOpenFileName(parent_widget, "Open File", self.save_directory,
                                                   "Sorting Config Files (sorting_config*.pkl);;All Files (*)",
                                                   options=options)
 
+        return self._open_sorting_config(filename, channel)
+
+    def _set_current_sorting_config_path(self, filename):
+        self.current_sorting_config_path = filename
+
+    def _open_sorting_config(self, filename, channel):
         if filename:
             try:
                 with open(filename, 'rb') as f:
                     all_configs = pickle.load(f)
+                self._set_current_sorting_config_path(filename)
                 return all_configs.get(channel, None)
             except FileNotFoundError:
                 print(f"Configuration file {filename} not found.")

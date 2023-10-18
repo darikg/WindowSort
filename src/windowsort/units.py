@@ -73,7 +73,8 @@ class Unit:
 class SortPanel(QWidget):
     unit_panels: List[UnitPanel]
 
-    def __init__(self, thresholded_spike_plot, data_exporter, sorting_config_manager, voltage_time_plot: VoltageTimePlot):
+    def __init__(self, thresholded_spike_plot, data_exporter, sorting_config_manager,
+                 voltage_time_plot: VoltageTimePlot):
         super(SortPanel, self).__init__(thresholded_spike_plot)
         self.spike_plot = thresholded_spike_plot
         self.data_exporter = data_exporter
@@ -87,7 +88,7 @@ class SortPanel(QWidget):
 
         # Add a button for loading Sorting Configuration
         self.load_config_button = QPushButton("Load Sorting Configuration")
-        self.load_config_button.clicked.connect(self.load_sorting_config)
+        self.load_config_button.clicked.connect(self.load_selected_sorting_config)
         self.layout.addWidget(self.load_config_button)
 
         # Add a button for adding new units
@@ -205,7 +206,6 @@ class SortPanel(QWidget):
         for unit_panel in self.unit_panels:
             unit_panel.update_expression_from_text_box()
 
-
     def _on_window_deleted(self, deleted_window_number: int):
         """
         Handle updates after a window is deleted.
@@ -322,8 +322,10 @@ class SortPanel(QWidget):
 
         # Use the DataExporter to save the sorted spikes
         self.data_exporter.save_sorted_spikes(sorted_spikes_by_unit, channel, extension=file_extension)
-        self.sorting_config_manager.save_sorting_config(channel, self.spike_plot.amp_time_windows, self.spike_plot.units,
-                                               self.spike_plot.current_threshold_value, extension=file_extension)
+        self.sorting_config_manager.save_sorting_config(channel, self.spike_plot.amp_time_windows,
+                                                        self.spike_plot.units,
+                                                        self.spike_plot.current_threshold_value,
+                                                        extension=file_extension)
 
     def query_file_extension(self):
         # Open Input Dialog to get the filename extension
@@ -354,10 +356,18 @@ class SortPanel(QWidget):
             sorted_spikes_by_unit[unit.unit_name] = sorted_spikes
         return sorted_spikes_by_unit
 
-    def load_sorting_config(self):
+    def load_current_sorting_config(self):
+        channel = self.spike_plot.current_channel
+        config = self.sorting_config_manager.open_current_sorting_config(channel)
+        self._apply_config(config)
+
+    def load_selected_sorting_config(self):
         channel = self.spike_plot.current_channel
         print(f"Loading sorting config for channel {channel}")
-        config = self.sorting_config_manager.open_sorting_config(channel, self)
+        config = self.sorting_config_manager.open_selected_sorting_config(channel, self)
+        self._apply_config(config)
+
+    def _apply_config(self, config):
         if config:
             # Add threshold
             threshold = config['threshold']

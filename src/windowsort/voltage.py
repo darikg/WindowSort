@@ -187,6 +187,7 @@ class ChannelSelectionPanel(QWidget):
         self.spike_plot.clear_amp_time_windows()
         self.sort_panel.clear_all_unitpanels()
 
+
         print("Selected channel: " + selected_channel.value)
         self.voltage_time_plot.current_channel = selected_channel
         self.spike_plot.current_channel = selected_channel
@@ -194,6 +195,8 @@ class ChannelSelectionPanel(QWidget):
 
         self.spike_plot.updatePlot()
         self.spike_plot.on_channel_changed()
+
+        self.sort_panel.load_current_sorting_config()
 
 
 
