@@ -9,8 +9,8 @@ def unit_color_generator():
 
 def window_color_generator():
     colors = [
-        'greenyellow', 'aquamarine', 'orchid', 'lightseagreen', 'darkturquoise',
-        'palevioletred', 'plum', 'lightsalmon', 'khaki', 'mediumorchid',
-        'lightskyblue', 'lightcoral', 'palegreen', 'peachpuff', 'lightslategray', 'rosybrown'
+        'darkolivegreen', 'teal', 'saddlebrown', 'darkred', 'darkgreen',
+        'darkgoldenrod', 'firebrick', 'darkcyan', 'maroon', 'darkslategray',
+        'darkorange', 'darkkhaki', 'dimgray', 'darkmagenta', 'darkseagreen', 'sienna'
     ]
     return itertools.cycle(colors)
