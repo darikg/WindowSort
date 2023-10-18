@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 import itertools
-import pickle
 from typing import List
 import re
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QFrame, QFileDialog, \
-    QInputDialog
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QFrame, QInputDialog
 
-from windowsort.spikes import ThresholdedSpikePlot
+from windowsort.colors import unit_color_generator
 from windowsort.threshold import threshold_spikes_absolute
 from windowsort.voltage import VoltageTimePlot
 
@@ -380,11 +378,6 @@ class SortPanel(QWidget):
 
             self.spike_plot.updatePlot()
             self.spike_plot.sortSpikes()
-
-
-def unit_color_generator():
-    colors = ['pink', 'yellow', 'orange']
-    return itertools.cycle(colors)
 
 
 def create_wrapped_label(unit_name_label):

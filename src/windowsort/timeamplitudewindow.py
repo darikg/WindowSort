@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import itertools
 from typing import List
 
 from PyQt5 import sip
@@ -8,6 +7,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtWidgets import QVBoxLayout, QAbstractSlider
 from pyqtgraph import PlotWidget
 
+from windowsort.colors import window_color_generator
 from windowsort.spikes import ThresholdedSpikePlot, SpikeScrubber
 
 from PyQt5.QtCore import QRectF, QPointF
@@ -314,6 +314,3 @@ class SortSpikePlot(ThresholdedSpikePlot):
         self.units = []  # Assuming this is your list of units
 
 
-def window_color_generator():
-    colors = ['green', 'cyan', 'magenta', 'blue', 'darkGreen', 'darkCyan', 'darkMagenta', 'darkBlue']
-    return itertools.cycle(colors)
