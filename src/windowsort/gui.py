@@ -2,7 +2,8 @@ import configparser
 import os
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QApplication, QHBoxLayout, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QApplication, QHBoxLayout, QFileDialog, QMenuBar, QMenu, \
+    QAction
 
 from windowsort.datahandler import InputDataManager, SortedSpikeExporter, SortingConfigManager
 from windowsort.drift import DriftSpikePlot, WindowMarkedSlider
@@ -79,9 +80,10 @@ class MainWindow(QMainWindow):
         self.sorting_config_manager = SortingConfigManager(save_directory=data_directory)
 
         # Initialize UI
-        self.initUI()
+        self.init_ui()
+        self.init_menu_bar()
 
-    def initUI(self):
+    def init_ui(self):
         self.setWindowTitle("Time Amp Window Sort GUI")
 
         central_widget = QWidget()
@@ -119,7 +121,8 @@ class MainWindow(QMainWindow):
         threshold_column.insertWidget(0, self.channel_selection_pannel)  # Inserts at the top of the layout
 
         # Sort Panel
-        self.sort_panel = SortPanel(self.spike_plot, self.data_exporter, self.sorting_config_manager, self.voltage_time_plot)
+        self.sort_panel = SortPanel(self.spike_plot, self.data_exporter, self.sorting_config_manager,
+                                    self.voltage_time_plot)
         spike_sort_column.insertWidget(0, self.sort_panel)
         self.spike_plot.set_sort_panel(self.sort_panel)
         self.channel_selection_pannel.sort_panel = self.sort_panel
@@ -136,6 +139,30 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(spike_sort_column)
 
         central_widget.setLayout(main_layout)
+
+    def init_menu_bar(self):
+        # Menu Bar
+        # Create a menu bar and add it to the main window
+        menu_bar = QMenuBar(self)
+        self.setMenuBar(menu_bar)
+        # Create a "File" menu and add it to the menu bar
+        file_menu = QMenu("File", self)
+        menu_bar.addMenu(file_menu)
+        # Create actions
+        open_action = QAction("Open Config (Ctrl+O)", self)
+        open_action.setShortcut("Ctrl+O")
+        save_action = QAction("Save (Ctrl+S)", self)
+        save_action.setShortcut("Ctrl+S")
+        save_as_action = QAction("Save As... (Ctrl+Shift+S)", self)
+        save_as_action.setShortcut("Ctrl+Shift+S")
+        # Add actions to the file menu
+        file_menu.addAction(open_action)
+        file_menu.addAction(save_action)
+        file_menu.addAction(save_as_action)
+        # Connect actions to functions
+        open_action.triggered.connect(self.sort_panel.open_selected_sorting_config)  # replace with the correct function
+        save_action.triggered.connect(self.sort_panel.save)  # replace with the correct function
+        save_as_action.triggered.connect(self.sort_panel.save_as)  # replace with the correct function
 
 
 if __name__ == '__main__':
