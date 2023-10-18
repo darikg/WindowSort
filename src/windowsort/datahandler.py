@@ -147,16 +147,42 @@ class SortingConfigManager:
         self.save_directory = save_directory
         self._set_current_sorting_config_path(os.path.join(self.save_directory, "sorting_config.pkl"))
 
-    def load_current_sorting_config(self):
+    def open_current_sorting_config(self):
         channel = self.spike_plot.current_channel
-        config = self.open_current_sorting_config(channel)
+        config = self._open_sorting_config(self.current_sorting_config_path, channel)
         self._apply_config(config)
 
     def open_selected_sorting_config(self):
         channel = self.spike_plot.current_channel
         print(f"Loading sorting config for channel {channel}")
-        config = self.select_sorting_config(channel, self.sort_panel)
+        config = self._select_sorting_config(channel, self.sort_panel)
         self._apply_config(config)
+
+    def save(self):
+        channel = self.spike_plot.current_channel
+        sorted_spikes_by_unit = self.sort_panel.sort_all_spikes(channel)
+
+        file_label = self._get_current_file_label()
+        # Use the DataExporter to save the sorted spikes
+        self.data_exporter.save_sorted_spikes(sorted_spikes_by_unit, channel, label=file_label)
+        self._save_sorting_config(channel, self.spike_plot.amp_time_windows,
+                                  self.spike_plot.units,
+                                  self.spike_plot.current_threshold_value,
+                                  label=file_label)
+
+    def save_as(self):
+        channel = self.spike_plot.current_channel
+        sorted_spikes_by_unit = self.sort_panel.sort_all_spikes(channel)
+
+        file_label = self._query_file_label()
+        print(file_label)
+
+        # Use the DataExporter to save the sorted spikes
+        self.data_exporter.save_sorted_spikes(sorted_spikes_by_unit, channel, label=file_label)
+        self._save_sorting_config(channel, self.spike_plot.amp_time_windows,
+                                  self.spike_plot.units,
+                                  self.spike_plot.current_threshold_value,
+                                  label=file_label)
 
     def _apply_config(self, config):
         if config:
@@ -181,32 +207,6 @@ class SortingConfigManager:
             self.spike_plot.updatePlot()
             self.spike_plot.sortSpikes()
 
-    def save(self):
-        channel = self.spike_plot.current_channel
-        sorted_spikes_by_unit = self.sort_panel.sort_all_spikes(channel)
-
-        file_label = self.get_current_file_label()
-        # Use the DataExporter to save the sorted spikes
-        self.data_exporter.save_sorted_spikes(sorted_spikes_by_unit, channel, label=file_label)
-        self.save_sorting_config(channel, self.spike_plot.amp_time_windows,
-                                 self.spike_plot.units,
-                                 self.spike_plot.current_threshold_value,
-                                 label=file_label)
-
-    def save_as(self):
-        channel = self.spike_plot.current_channel
-        sorted_spikes_by_unit = self.sort_panel.sort_all_spikes(channel)
-
-        file_label = self._query_file_label()
-        print(file_label)
-
-        # Use the DataExporter to save the sorted spikes
-        self.data_exporter.save_sorted_spikes(sorted_spikes_by_unit, channel, label=file_label)
-        self.save_sorting_config(channel, self.spike_plot.amp_time_windows,
-                                 self.spike_plot.units,
-                                 self.spike_plot.current_threshold_value,
-                                 label=file_label)
-
 
     def _query_file_label(self):
         # Open Input Dialog to get the filename extension
@@ -215,13 +215,13 @@ class SortingConfigManager:
         if ok and text:
             return text
 
-    def get_current_file_label(self):
+    def _get_current_file_label(self):
         pattern = r"sorting_config_(.*?).pkl"
         match = re.search(pattern, self.current_sorting_config_path)
         return match.group(1) if match else None
 
-    def save_sorting_config(self, channel, amp_time_windows: List[DriftingTimeAmplitudeWindow], units, threshold,
-                            label=None):
+    def _save_sorting_config(self, channel, amp_time_windows: List[DriftingTimeAmplitudeWindow], units, threshold,
+                             label=None):
         base_filename = "sorting_config"
         if label is not None:
             filename = base_filename + "_" + label + ".pkl"
@@ -247,10 +247,7 @@ class SortingConfigManager:
 
         print("Saved sorting configs to: ", filename)
 
-    def open_current_sorting_config(self, channel: Channel):
-        return self._open_sorting_config(self.current_sorting_config_path, channel)
-
-    def select_sorting_config(self, channel: Channel, parent_widget: QWidget):
+    def _select_sorting_config(self, channel: Channel, parent_widget: QWidget):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         filename, _ = QFileDialog.getOpenFileName(parent_widget, "Open File", self.save_directory,

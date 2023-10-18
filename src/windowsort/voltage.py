@@ -197,7 +197,7 @@ class ChannelSelectionPanel(QWidget):
         self.spike_plot.updatePlot()
         self.spike_plot.on_channel_changed()
 
-        self.sorting_config_manager.load_current_sorting_config()
+        self.sorting_config_manager.open_current_sorting_config()
 
 
 
