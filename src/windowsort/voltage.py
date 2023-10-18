@@ -160,6 +160,7 @@ class TimeScrubber(QWidget):
 
 class ChannelSelectionPanel(QWidget):
     sort_panel = None
+    sorting_config_manager = None
     def __init__(self, voltage_time_plot, thresholded_spike_plot):
         super(ChannelSelectionPanel, self).__init__()
         self.voltage_time_plot = voltage_time_plot
@@ -196,7 +197,7 @@ class ChannelSelectionPanel(QWidget):
         self.spike_plot.updatePlot()
         self.spike_plot.on_channel_changed()
 
-        self.sort_panel.load_current_sorting_config()
+        self.sorting_config_manager.load_current_sorting_config()
 
 
 

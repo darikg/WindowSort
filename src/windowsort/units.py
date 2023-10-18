@@ -358,7 +358,7 @@ class SortPanel(QWidget):
     def open_selected_sorting_config(self):
         channel = self.spike_plot.current_channel
         print(f"Loading sorting config for channel {channel}")
-        config = self.sorting_config_manager.open_selected_sorting_config(channel, self)
+        config = self.sorting_config_manager.select_sorting_config(channel, self)
         self._apply_config(config)
 
     def _apply_config(self, config):

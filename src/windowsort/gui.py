@@ -74,10 +74,11 @@ class MainWindow(QMainWindow):
     def __init__(self, data_directory):
         super(MainWindow, self).__init__()
 
+        self.data_directory = data_directory
         # Initialize Dependencies
         self.data_handler = InputDataManager(data_directory)
         self.data_exporter = SortedSpikeExporter(save_directory=data_directory)
-        self.sorting_config_manager = SortingConfigManager(save_directory=data_directory)
+        self.sorting_config_manager = None
 
         # Initialize UI
         self.init_ui()
@@ -133,6 +134,14 @@ class MainWindow(QMainWindow):
         self.snapshot_plot.setMaximumHeight(500)
         spike_plot_column.addWidget(self.snapshot_plot)
 
+        # Sorting Manager
+        self.sorting_config_manager = SortingConfigManager(save_directory=self.data_directory,
+                                                           voltage_time_plot=self.voltage_time_plot,
+                                                           spike_plot=self.spike_plot,
+                                                           sort_panel=self.sort_panel,
+                                                           data_exporter=self.data_exporter)
+        self.channel_selection_pannel.sorting_config_manager = self.sorting_config_manager
+
         # Add the second column layout to the main layout
         main_layout.addLayout(threshold_column)
         main_layout.addLayout(spike_plot_column)
@@ -160,9 +169,9 @@ class MainWindow(QMainWindow):
         file_menu.addAction(save_action)
         file_menu.addAction(save_as_action)
         # Connect actions to functions
-        open_action.triggered.connect(self.sort_panel.open_selected_sorting_config)  # replace with the correct function
-        save_action.triggered.connect(self.sort_panel.save)  # replace with the correct function
-        save_as_action.triggered.connect(self.sort_panel.save_as)  # replace with the correct function
+        open_action.triggered.connect(self.sorting_config_manager.open_selected_sorting_config)  # replace with the correct function
+        save_action.triggered.connect(self.sorting_config_manager.save)  # replace with the correct function
+        save_as_action.triggered.connect(self.sorting_config_manager.save_as)  # replace with the correct function
 
 
 if __name__ == '__main__':

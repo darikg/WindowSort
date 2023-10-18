@@ -4,13 +4,14 @@ import re
 from typing import Dict, List
 
 import numpy as np
-from PyQt5.QtWidgets import QFileDialog, QWidget
+from PyQt5.QtWidgets import QFileDialog, QWidget, QInputDialog, QLineEdit
 from scipy.signal import butter, filtfilt
 
 from clat.intan.amplifiers import read_amplifier_data_with_mmap
 from clat.intan.channels import Channel
 from clat.intan.rhd import load_intan_rhd_format
 from windowsort.drift import DriftingTimeAmplitudeWindow
+from windowsort.units import Unit
 
 
 class InputDataManager:
@@ -138,9 +139,81 @@ class SortedSpikeExporter:
 class SortingConfigManager:
     current_sorting_config_path: str = None
 
-    def __init__(self, *, save_directory):
+    def __init__(self, *, save_directory, voltage_time_plot, spike_plot, sort_panel, data_exporter):
+        self.voltage_time_plot = voltage_time_plot
+        self.spike_plot = spike_plot
+        self.sort_panel = sort_panel
+        self.data_exporter = data_exporter
         self.save_directory = save_directory
         self._set_current_sorting_config_path(os.path.join(self.save_directory, "sorting_config.pkl"))
+
+    def load_current_sorting_config(self):
+        channel = self.spike_plot.current_channel
+        config = self.open_current_sorting_config(channel)
+        self._apply_config(config)
+
+    def open_selected_sorting_config(self):
+        channel = self.spike_plot.current_channel
+        print(f"Loading sorting config for channel {channel}")
+        config = self.select_sorting_config(channel, self.sort_panel)
+        self._apply_config(config)
+
+    def _apply_config(self, config):
+        if config:
+            # Add threshold
+            threshold = config['threshold']
+            self.voltage_time_plot.update_threshold(threshold)
+            self.voltage_time_plot.threshold_line.setValue(threshold)
+
+            self.sort_panel.clear_all_unitpanels()
+            self.spike_plot.clear_amp_time_windows()
+            self.spike_plot.clear_units()
+
+            # Add the amp time windows
+            for window in config['amp_time_windows']:
+                self.spike_plot.load_amp_time_window(window)
+
+            self.unit_counter = 0
+            for logical_expression, unit_name, color in config['units']:
+                unit = Unit(logical_expression, unit_name, color)
+                self.sort_panel.load_unit(unit)
+
+            self.spike_plot.updatePlot()
+            self.spike_plot.sortSpikes()
+
+    def save(self):
+        channel = self.spike_plot.current_channel
+        sorted_spikes_by_unit = self.sort_panel.sort_all_spikes(channel)
+
+        file_label = self.get_current_file_label()
+        # Use the DataExporter to save the sorted spikes
+        self.data_exporter.save_sorted_spikes(sorted_spikes_by_unit, channel, label=file_label)
+        self.save_sorting_config(channel, self.spike_plot.amp_time_windows,
+                                 self.spike_plot.units,
+                                 self.spike_plot.current_threshold_value,
+                                 label=file_label)
+
+    def save_as(self):
+        channel = self.spike_plot.current_channel
+        sorted_spikes_by_unit = self.sort_panel.sort_all_spikes(channel)
+
+        file_label = self._query_file_label()
+        print(file_label)
+
+        # Use the DataExporter to save the sorted spikes
+        self.data_exporter.save_sorted_spikes(sorted_spikes_by_unit, channel, label=file_label)
+        self.save_sorting_config(channel, self.spike_plot.amp_time_windows,
+                                 self.spike_plot.units,
+                                 self.spike_plot.current_threshold_value,
+                                 label=file_label)
+
+
+    def _query_file_label(self):
+        # Open Input Dialog to get the filename extension
+        text, ok = QInputDialog.getText(self.sort_panel, 'Input Dialog', 'Enter filename label:', QLineEdit.Normal, "")
+
+        if ok and text:
+            return text
 
     def get_current_file_label(self):
         pattern = r"sorting_config_(.*?).pkl"
@@ -177,7 +250,7 @@ class SortingConfigManager:
     def open_current_sorting_config(self, channel: Channel):
         return self._open_sorting_config(self.current_sorting_config_path, channel)
 
-    def open_selected_sorting_config(self, channel: Channel, parent_widget: QWidget):
+    def select_sorting_config(self, channel: Channel, parent_widget: QWidget):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         filename, _ = QFileDialog.getOpenFileName(parent_widget, "Open File", self.save_directory,
