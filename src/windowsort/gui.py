@@ -114,11 +114,6 @@ class MainWindow(QMainWindow):
         spike_plot_column.addWidget(self.spike_scrubber)
         self.spike_plot.spike_scrubber = self.spike_scrubber
 
-        # Exporting
-        self.export_panel = ExportPanel(self.data_exporter)
-        threshold_column.addWidget(self.export_panel)
-        threshold_column.addWidget(self.export_panel)
-
         # Channel Selection
         self.channel_selection_pannel = ChannelSelectionPanel(self.voltage_time_plot, self.spike_plot)
         threshold_column.insertWidget(0, self.channel_selection_pannel)  # Inserts at the top of the layout

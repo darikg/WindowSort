@@ -175,20 +175,3 @@ class SpikeScrubber(QWidget):
         self._update_spike_plot()
 
 
-class ExportPanel(QWidget):
-    def __init__(self, data_exporter):
-        super(ExportPanel, self).__init__()
-        self.data_exporter = data_exporter
-        self.initUI()
-
-    def initUI(self):
-        layout = QVBoxLayout()
-
-        self.exportButton = QPushButton("Export Data")
-        self.exportButton.clicked.connect(self.onExportClicked)
-
-        layout.addWidget(self.exportButton)
-        self.setLayout(layout)
-
-    def onExportClicked(self):
-        self.data_exporter.save_thresholded_spikes()
