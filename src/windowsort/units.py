@@ -87,9 +87,9 @@ class SortPanel(QWidget):
         self.layout = QVBoxLayout()
 
         # Add a button for loading Sorting Configuration
-        self.load_config_button = QPushButton("Load Sorting Configuration")
-        self.load_config_button.clicked.connect(self.load_selected_sorting_config)
-        self.layout.addWidget(self.load_config_button)
+        self.open_config_button = QPushButton("Open Sorting Config")
+        self.open_config_button.clicked.connect(self.open_selected_sorting_config)
+        self.layout.addWidget(self.open_config_button)
 
         # Add a button for adding new units
         self.add_unit_button = QPushButton("Add New Unit")
@@ -107,10 +107,15 @@ class SortPanel(QWidget):
         self.unit_panels_layout = QVBoxLayout()
         self.layout.addLayout(self.unit_panels_layout)
 
-        # Add Export button
-        self.export_button = QPushButton("Export Sorted Spikes")
-        self.export_button.clicked.connect(self.export_sorted_spikes)
-        self.layout.addWidget(self.export_button)
+        # Add Save Button
+        self.save_button = QPushButton("Save")
+        self.save_button.clicked.connect(self.save)
+        self.layout.addWidget(self.save_button)
+
+        # Add Save As Button
+        self.save_as_button = QPushButton("Save As...")
+        self.save_as_button.clicked.connect(self.save_as)
+        self.layout.addWidget(self.save_as_button)
 
         self.previous_window_count = 0
 
@@ -313,23 +318,35 @@ class SortPanel(QWidget):
         self.unit_colors = unit_color_generator()
         self.unit_counter = 0
 
-    def export_sorted_spikes(self):
+    def save(self):
         channel = self.spike_plot.current_channel
         sorted_spikes_by_unit = self.sort_all_spikes(channel)
 
-        file_extension = self.query_file_extension()
-        print(file_extension)
-
+        file_label = self.sorting_config_manager.get_current_file_label()
         # Use the DataExporter to save the sorted spikes
-        self.data_exporter.save_sorted_spikes(sorted_spikes_by_unit, channel, extension=file_extension)
+        self.data_exporter.save_sorted_spikes(sorted_spikes_by_unit, channel, label=file_label)
         self.sorting_config_manager.save_sorting_config(channel, self.spike_plot.amp_time_windows,
                                                         self.spike_plot.units,
                                                         self.spike_plot.current_threshold_value,
-                                                        extension=file_extension)
+                                                        label=file_label)
 
-    def query_file_extension(self):
+    def save_as(self):
+        channel = self.spike_plot.current_channel
+        sorted_spikes_by_unit = self.sort_all_spikes(channel)
+
+        file_label = self._query_file_label()
+        print(file_label)
+
+        # Use the DataExporter to save the sorted spikes
+        self.data_exporter.save_sorted_spikes(sorted_spikes_by_unit, channel, label=file_label)
+        self.sorting_config_manager.save_sorting_config(channel, self.spike_plot.amp_time_windows,
+                                                        self.spike_plot.units,
+                                                        self.spike_plot.current_threshold_value,
+                                                        label=file_label)
+
+    def _query_file_label(self):
         # Open Input Dialog to get the filename extension
-        text, ok = QInputDialog.getText(self, 'Input Dialog', 'Enter filename extension:', QLineEdit.Normal, "")
+        text, ok = QInputDialog.getText(self, 'Input Dialog', 'Enter filename label:', QLineEdit.Normal, "")
 
         if ok and text:
             return text
@@ -361,7 +378,7 @@ class SortPanel(QWidget):
         config = self.sorting_config_manager.open_current_sorting_config(channel)
         self._apply_config(config)
 
-    def load_selected_sorting_config(self):
+    def open_selected_sorting_config(self):
         channel = self.spike_plot.current_channel
         print(f"Loading sorting config for channel {channel}")
         config = self.sorting_config_manager.open_selected_sorting_config(channel, self)

@@ -1,5 +1,6 @@
 import os
 import pickle
+import re
 from typing import Dict, List
 
 import numpy as np
@@ -106,10 +107,10 @@ class SortedSpikeExporter:
         # print(f"Saved {len(self.thresholded_spikes_by_channel.items())} thresholded spikes to {self.filename}")
         print(self.thresholded_spike_indices_by_channel)
 
-    def save_sorted_spikes(self, spikes_by_unit: Dict[str, np.ndarray], channel, extension=None):
+    def save_sorted_spikes(self, spikes_by_unit: Dict[str, np.ndarray], channel, label=None):
         base_filename = "sorted_spikes"
-        if extension is not None:
-            filename = base_filename + "_" + extension + ".pkl"
+        if label is not None:
+            filename = base_filename + "_" + label + ".pkl"
         else:
             filename = base_filename + ".pkl"
 
@@ -141,11 +142,16 @@ class SortingConfigManager:
         self.save_directory = save_directory
         self._set_current_sorting_config_path(os.path.join(self.save_directory, "sorting_config.pkl"))
 
+    def get_current_file_label(self):
+        pattern = r"sorting_config_(.*?).pkl"
+        match = re.search(pattern, self.current_sorting_config_path)
+        return match.group(1) if match else None
+
     def save_sorting_config(self, channel, amp_time_windows: List[DriftingTimeAmplitudeWindow], units, threshold,
-                            extension=None):
+                            label=None):
         base_filename = "sorting_config"
-        if extension is not None:
-            filename = base_filename + "_" + extension + ".pkl"
+        if label is not None:
+            filename = base_filename + "_" + label + ".pkl"
         else:
             filename = base_filename + ".pkl"
         filename = os.path.join(self.save_directory, filename)
