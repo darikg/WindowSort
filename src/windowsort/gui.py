@@ -196,6 +196,8 @@ class MainWindow(QMainWindow):
     def show_controls_dialog(self):
         dialog = ControlsDialog(self)
         dialog.exec_()
+
+
 class ControlsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -267,6 +269,7 @@ class ControlsDialog(QDialog):
         layout.addWidget(close_button)
 
         self.setLayout(layout)
+
 
 if __name__ == '__main__':
     main()

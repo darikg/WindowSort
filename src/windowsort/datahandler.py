@@ -207,7 +207,6 @@ class SortingConfigManager:
             self.spike_plot.updatePlot()
             self.spike_plot.sortSpikes()
 
-
     def _query_file_label(self):
         # Open Input Dialog to get the filename extension
         text, ok = QInputDialog.getText(self.sort_panel, 'Input Dialog', 'Enter filename label:', QLineEdit.Normal, "")
