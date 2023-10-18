@@ -53,9 +53,9 @@ class WindowMarkedSlider(QSlider):
 
         self._draw_ticks()
 
-    def mousePressEvent(self, e):
+    def mouseDoubleClickEvent(self, e):
         # Let QSlider handle its own event first
-        super(WindowMarkedSlider, self).mousePressEvent(e)
+        super(WindowMarkedSlider, self).mouseDoubleClickEvent(e)
 
         # Check if left mouse button was pressed
         if e.button() == Qt.LeftButton:
