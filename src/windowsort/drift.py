@@ -59,7 +59,7 @@ class WindowMarkedSlider(QSlider):
 
         # Check if left mouse button was pressed
         if e.button() == Qt.LeftButton:
-            value = self._pixel_to_value(e.x())
+            value = self._pixel_to_slider_value(e.x())
             closest_tick = self._find_closest_tick(value)
             if closest_tick is not None:
                 self.setValue(closest_tick)
@@ -94,7 +94,7 @@ class WindowMarkedSlider(QSlider):
             tick_locations = list(control_points.keys())
 
             for tick_location in tick_locations:
-                pixel_x = self._value_to_pixel(tick_location)
+                pixel_x = self._slider_value_to_pixel(tick_location)
                 painter.setPen(QColor(color))
                 painter.setBrush(QColor(color))
                 painter.setOpacity(0.5)
@@ -103,14 +103,11 @@ class WindowMarkedSlider(QSlider):
                 painter.drawRect(int(pixel_x - width / 2), 0, width, height)
         painter.end()
 
-    def _value_to_pixel(self, value):
+    def _slider_value_to_pixel(self, value):
         # Convert a slider value to a pixel position.
         return int(((value - self.minimum()) / (self.maximum() - self.minimum())) * self.width())
 
-    def _pixel_to_value(self, pixel):
-        """
-        Convert a pixel position to a slider value.
-        """
+    def _pixel_to_slider_value(self, pixel):
         return round((pixel / self.width()) * (self.maximum() - self.minimum()) + self.minimum())
 
 
