@@ -1,5 +1,5 @@
 *.iml
-/.idea
+/.idea/
 /dist/
 /build/
-src/ConnorLabAnalysisTools.egg-info/
+src/windowsort.egg-info/
