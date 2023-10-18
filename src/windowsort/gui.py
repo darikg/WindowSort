@@ -46,7 +46,7 @@ def main():
 
     print("Loading App")
     mainWin = MainWindow(data_directory)
-    mainWin.show()
+    mainWin.showMaximized()
     sys.exit(app.exec_())
 
 
