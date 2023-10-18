@@ -24,22 +24,22 @@ class TimeAmplitudeWindow(QGraphicsItem):
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
 
-        # Window Updating
+        # Window Updating - avoid lag with too frequent redraws
         self.window_update_delay = 300
         self.window_update_timer = QTimer()
         self.window_update_timer.setSingleShot(True)
         self.window_update_timer.timeout.connect(self.emit_window_updated)
         self.setFlag(QGraphicsItem.ItemSendsGeometryChanges)
 
-        # Drag and Drop Timer
+        # Drag and Drop Timer - avoid clicking to select accidentally dragging
         self.drag_delay = 300
         self.drag_started = False
         self.drag_timer = QTimer()
         self.drag_timer.setSingleShot(True)
         self.drag_timer.timeout.connect(self._start_drag)
 
-        self.height = height  # Height of the line
-        self.color = color  # Color of the line
+        self.height = height
+        self.color = color
         self.setZValue(1)  # We want this drawing to be on top of everything else
 
         self.pen = QPen(QColor(self.color))
@@ -50,11 +50,10 @@ class TimeAmplitudeWindow(QGraphicsItem):
         self.sort_ymin = None
         self.sort_x = None
 
-        # Correct the initial position so that the line is centered on the mouse
-        y = (y / 2)
         # Set the initial position in scene coordinates
         self.setPos(x, y)
         self.calculate_x_y_for_sorting()
+
 
     def calculate_x_y_for_sorting(self):
         """For some reason the drawn x and y locations are ALWAYS a factor of 2 off from
@@ -156,7 +155,7 @@ class CustomPlotWidget(PlotWidget):
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton and event.modifiers() == Qt.ShiftModifier:
             pos = self.plotItem.vb.mapSceneToView(event.pos())
-            self.parent.add_amp_time_window(round(pos.x()) / 2, pos.y(), 40)
+            self.parent.add_amp_time_window(round(pos.x()) / 2, pos.y()/2, 40)
         super(CustomPlotWidget, self).mousePressEvent(event)
 
     def keyPressEvent(self, event):
