@@ -4,7 +4,7 @@ import sys
 
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QApplication, QHBoxLayout, QFileDialog
 
-from windowsort.datahandler import DataImporter, DataExporter
+from windowsort.datahandler import DataImporter, DataExporter, SortingConfigManager
 from windowsort.drift import DriftSpikePlot, WindowMarkedSlider
 from windowsort.snapshot import SnapshotPlot
 from windowsort.spikes import SpikeScrubber, ExportPanel
@@ -76,6 +76,7 @@ class MainWindow(QMainWindow):
         # Initialize Dependencies
         self.data_handler = DataImporter(data_directory)
         self.data_exporter = DataExporter(save_directory=data_directory)
+        self.sorting_config_manager = SortingConfigManager(save_directory=data_directory)
 
         # Initialize UI
         self.initUI()
@@ -123,7 +124,7 @@ class MainWindow(QMainWindow):
         threshold_column.insertWidget(0, self.channel_selection_pannel)  # Inserts at the top of the layout
 
         # Sort Panel
-        self.sort_panel = SortPanel(self.spike_plot, self.data_exporter, self.voltage_time_plot)
+        self.sort_panel = SortPanel(self.spike_plot, self.data_exporter, self.sorting_config_manager, self.voltage_time_plot)
         spike_sort_column.insertWidget(0, self.sort_panel)
         self.spike_plot.set_sort_panel(self.sort_panel)
         self.channel_selection_pannel.sort_panel = self.sort_panel

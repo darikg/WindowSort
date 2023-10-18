@@ -133,6 +133,11 @@ class DataExporter:
         for unit_name, spikes in spikes_by_unit.items():
             print(f"Saved {len(spikes)} spikes for unit {unit_name} to {filename}")
 
+
+class SortingConfigManager:
+    def __init__(self, *, save_directory):
+        self.save_directory = save_directory
+
     def save_sorting_config(self, channel, amp_time_windows: List[DriftingTimeAmplitudeWindow], units, threshold,
                             extension=None):
         base_filename = "sorting_config"
@@ -160,7 +165,7 @@ class DataExporter:
 
         print("Saved sorting configs to: ", filename)
 
-    def load_sorting_config(self, channel: Channel, parent_widget: QWidget):
+    def open_sorting_config(self, channel: Channel, parent_widget: QWidget):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         filename, _ = QFileDialog.getOpenFileName(parent_widget, "Open File", self.save_directory,

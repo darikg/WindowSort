@@ -73,10 +73,11 @@ class Unit:
 class SortPanel(QWidget):
     unit_panels: List[UnitPanel]
 
-    def __init__(self, thresholded_spike_plot, data_exporter, voltage_time_plot: VoltageTimePlot):
+    def __init__(self, thresholded_spike_plot, data_exporter, sorting_config_manager, voltage_time_plot: VoltageTimePlot):
         super(SortPanel, self).__init__(thresholded_spike_plot)
         self.spike_plot = thresholded_spike_plot
         self.data_exporter = data_exporter
+        self.sorting_config_manager = sorting_config_manager
         self.voltage_time_plot = voltage_time_plot
         self.unit_panels = []
         self.unit_counter = 0  # to generate unique unit identifiers
@@ -321,7 +322,7 @@ class SortPanel(QWidget):
 
         # Use the DataExporter to save the sorted spikes
         self.data_exporter.save_sorted_spikes(sorted_spikes_by_unit, channel, extension=file_extension)
-        self.data_exporter.save_sorting_config(channel, self.spike_plot.amp_time_windows, self.spike_plot.units,
+        self.sorting_config_manager.save_sorting_config(channel, self.spike_plot.amp_time_windows, self.spike_plot.units,
                                                self.spike_plot.current_threshold_value, extension=file_extension)
 
     def query_file_extension(self):
@@ -356,7 +357,7 @@ class SortPanel(QWidget):
     def load_sorting_config(self):
         channel = self.spike_plot.current_channel
         print(f"Loading sorting config for channel {channel}")
-        config = self.data_exporter.load_sorting_config(channel, self)
+        config = self.sorting_config_manager.open_sorting_config(channel, self)
         if config:
             # Add threshold
             threshold = config['threshold']
