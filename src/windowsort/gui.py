@@ -108,11 +108,14 @@ class MainWindow(QMainWindow):
 
         # Spike Plot
         default_max_spikes = 50
-        self.spike_plot = DriftSpikePlot(self.data_handler, self.data_exporter, default_max_spikes=default_max_spikes)
+        self.spike_plot = DriftSpikePlot(self.data_handler,
+                                         self.data_exporter,
+                                         default_max_spikes=default_max_spikes)
         spike_plot_column.addWidget(self.spike_plot)
         self.voltage_time_plot.spike_plot = self.spike_plot
         self.spike_slider = WindowMarkedSlider(self.spike_plot)
-        self.spike_scrubber = SpikeScrubber(self.spike_plot, default_max_spikes=default_max_spikes,
+        self.spike_scrubber = SpikeScrubber(self.spike_plot,
+                                            default_max_spikes=default_max_spikes,
                                             slider=self.spike_slider)
         spike_plot_column.addWidget(self.spike_scrubber)
         self.spike_plot.spike_scrubber = self.spike_scrubber
@@ -122,7 +125,8 @@ class MainWindow(QMainWindow):
         threshold_column.insertWidget(0, self.channel_selection_pannel)  # Inserts at the top of the layout
 
         # Sort Panel
-        self.sort_panel = SortPanel(self.spike_plot, self.data_exporter, self.sorting_config_manager,
+        self.sort_panel = SortPanel(self.spike_plot,
+                                    self.data_exporter,
                                     self.voltage_time_plot)
         spike_sort_column.insertWidget(0, self.sort_panel)
         self.spike_plot.set_sort_panel(self.sort_panel)
@@ -130,7 +134,9 @@ class MainWindow(QMainWindow):
         # Add more Time-Amp related widgets to spike_sort_layout if needed
 
         # Snapshot Plot
-        self.snapshot_plot = SnapshotPlot(self.data_handler, self.data_exporter, self.sort_panel)
+        self.snapshot_plot = SnapshotPlot(self.data_handler,
+                                          self.data_exporter,
+                                          self.sort_panel)
         self.snapshot_plot.setMaximumHeight(500)
         spike_plot_column.addWidget(self.snapshot_plot)
 

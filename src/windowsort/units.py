@@ -73,23 +73,17 @@ class Unit:
 class SortPanel(QWidget):
     unit_panels: List[UnitPanel]
 
-    def __init__(self, thresholded_spike_plot, data_exporter, sorting_config_manager,
+    def __init__(self, thresholded_spike_plot, data_exporter,
                  voltage_time_plot: VoltageTimePlot):
         super(SortPanel, self).__init__(thresholded_spike_plot)
         self.spike_plot = thresholded_spike_plot
         self.data_exporter = data_exporter
-        self.sorting_config_manager = sorting_config_manager
         self.voltage_time_plot = voltage_time_plot
         self.unit_panels = []
         self.unit_counter = 0  # to generate unique unit identifiers
         self.current_color = None
         self.unit_colors = unit_color_generator()  # to generate unique colors for units
         self.layout = QVBoxLayout()
-
-        # Add a button for loading Sorting Configuration
-        self.open_config_button = QPushButton("Open Sorting Config")
-        self.open_config_button.clicked.connect(self.open_selected_sorting_config)
-        self.layout.addWidget(self.open_config_button)
 
         # Add a button for adding new units
         self.add_unit_button = QPushButton("Add New Unit")
@@ -106,16 +100,6 @@ class SortPanel(QWidget):
         # Unit panels
         self.unit_panels_layout = QVBoxLayout()
         self.layout.addLayout(self.unit_panels_layout)
-
-        # Add Save Button
-        self.save_button = QPushButton("Save")
-        self.save_button.clicked.connect(self.save)
-        self.layout.addWidget(self.save_button)
-
-        # Add Save As Button
-        self.save_as_button = QPushButton("Save As...")
-        self.save_as_button.clicked.connect(self.save_as)
-        self.layout.addWidget(self.save_as_button)
 
         self.previous_window_count = 0
 
@@ -295,38 +279,6 @@ class SortPanel(QWidget):
         self.unit_colors = unit_color_generator()
         self.unit_counter = 0
 
-    def save(self):
-        channel = self.spike_plot.current_channel
-        sorted_spikes_by_unit = self.sort_all_spikes(channel)
-
-        file_label = self.sorting_config_manager.get_current_file_label()
-        # Use the DataExporter to save the sorted spikes
-        self.data_exporter.save_sorted_spikes(sorted_spikes_by_unit, channel, label=file_label)
-        self.sorting_config_manager.save_sorting_config(channel, self.spike_plot.amp_time_windows,
-                                                        self.spike_plot.units,
-                                                        self.spike_plot.current_threshold_value,
-                                                        label=file_label)
-
-    def save_as(self):
-        channel = self.spike_plot.current_channel
-        sorted_spikes_by_unit = self.sort_all_spikes(channel)
-
-        file_label = self._query_file_label()
-        print(file_label)
-
-        # Use the DataExporter to save the sorted spikes
-        self.data_exporter.save_sorted_spikes(sorted_spikes_by_unit, channel, label=file_label)
-        self.sorting_config_manager.save_sorting_config(channel, self.spike_plot.amp_time_windows,
-                                                        self.spike_plot.units,
-                                                        self.spike_plot.current_threshold_value,
-                                                        label=file_label)
-
-    def _query_file_label(self):
-        # Open Input Dialog to get the filename extension
-        text, ok = QInputDialog.getText(self, 'Input Dialog', 'Enter filename label:', QLineEdit.Normal, "")
-
-        if ok and text:
-            return text
 
     def sort_all_spikes(self, channel):
         voltages = self.spike_plot.data_handler.voltages_by_channel[channel]
@@ -349,40 +301,6 @@ class SortPanel(QWidget):
 
             sorted_spikes_by_unit[unit.unit_name] = sorted_spikes
         return sorted_spikes_by_unit
-
-    def load_current_sorting_config(self):
-        channel = self.spike_plot.current_channel
-        config = self.sorting_config_manager.open_current_sorting_config(channel)
-        self._apply_config(config)
-
-    def open_selected_sorting_config(self):
-        channel = self.spike_plot.current_channel
-        print(f"Loading sorting config for channel {channel}")
-        config = self.sorting_config_manager.select_sorting_config(channel, self)
-        self._apply_config(config)
-
-    def _apply_config(self, config):
-        if config:
-            # Add threshold
-            threshold = config['threshold']
-            self.voltage_time_plot.update_threshold(threshold)
-            self.voltage_time_plot.threshold_line.setValue(threshold)
-
-            self.clear_all_unitpanels()
-            self.spike_plot.clear_amp_time_windows()
-            self.spike_plot.clear_units()
-
-            # Add the amp time windows
-            for window in config['amp_time_windows']:
-                self.spike_plot.load_amp_time_window(window)
-
-            self.unit_counter = 0
-            for logical_expression, unit_name, color in config['units']:
-                unit = Unit(logical_expression, unit_name, color)
-                self.load_unit(unit)
-
-            self.spike_plot.updatePlot()
-            self.spike_plot.sortSpikes()
 
 
 def create_wrapped_label(unit_name_label):
