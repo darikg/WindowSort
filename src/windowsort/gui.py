@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QApplication, QHB
 from windowsort.datahandler import InputDataManager, SortedSpikeExporter, SortingConfigManager
 from windowsort.drift import DriftSpikePlot, WindowMarkedSlider
 from windowsort.snapshot import SnapshotPlot
-from windowsort.spikes import SpikeScrubber, ExportPanel
+from windowsort.spikes import SpikeScrubber
 from windowsort.units import SortPanel
 from windowsort.voltage import VoltageTimePlot, TimeScrubber, ChannelSelectionPanel, ThresholdControlPanel
 
