@@ -3,7 +3,7 @@ import os
 import sys
 
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QApplication, QHBoxLayout, QFileDialog, QMenuBar, QMenu, \
-    QAction
+    QAction, QDialog, QLabel, QTextBrowser, QPushButton
 
 from windowsort.datahandler import InputDataManager, SortedSpikeExporter, SortingConfigManager
 from windowsort.drift import DriftSpikePlot, WindowMarkedSlider
@@ -160,6 +160,10 @@ class MainWindow(QMainWindow):
         # Create a menu bar and add it to the main window
         menu_bar = QMenuBar(self)
         self.setMenuBar(menu_bar)
+        self._file_menu(menu_bar)
+        self._help_menu(menu_bar)
+
+    def _file_menu(self, menu_bar):
         # Create a "File" menu and add it to the menu bar
         file_menu = QMenu("File", self)
         menu_bar.addMenu(file_menu)
@@ -175,10 +179,94 @@ class MainWindow(QMainWindow):
         file_menu.addAction(save_action)
         file_menu.addAction(save_as_action)
         # Connect actions to functions
-        open_action.triggered.connect(self.sorting_config_manager.open_selected_sorting_config)  # replace with the correct function
+        open_action.triggered.connect(
+            self.sorting_config_manager.open_selected_sorting_config)  # replace with the correct function
         save_action.triggered.connect(self.sorting_config_manager.save)  # replace with the correct function
         save_as_action.triggered.connect(self.sorting_config_manager.save_as)  # replace with the correct function
 
+    def _help_menu(self, menu_bar):
+        help_menu = self.menuBar().addMenu("Help")
+        menu_bar.addMenu(help_menu)
+
+        # Add Controls action to the Help menu
+        controls_action = QAction("Controls", self)
+        controls_action.triggered.connect(self.show_controls_dialog)
+        help_menu.addAction(controls_action)
+
+    def show_controls_dialog(self):
+        dialog = ControlsDialog(self)
+        dialog.exec_()
+class ControlsDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Controls")
+
+        layout = QVBoxLayout(self)
+
+        # Main Heading
+        main_heading = QLabel("<h2>Application Controls</h2>")
+        layout.addWidget(main_heading)
+
+        # Section 1: General Controls
+        section1_heading = QLabel("<h3>General Controls</h3>")
+        layout.addWidget(section1_heading)
+
+        general_controls_text = """
+        <ul>
+            <li><b>Ctrl + S:</b> Save</li>
+            <li><b>Ctrl + Shift + S:</b> Save As...</li>
+            <li><b>Ctrl + O:</b> Open Sorting Config</li>
+        </ul>
+        """
+        general_controls_browser = QTextBrowser(self)
+        general_controls_browser.setHtml(general_controls_text)
+        layout.addWidget(general_controls_browser)
+
+        # Section 2: Window Controls
+        section2_heading = QLabel("<h3>Time-Amplitude Window Controls</h3>")
+        layout.addWidget(section2_heading)
+
+        window_controls_text = """
+        <ul>
+            <li><b>SHIFT + Left Click:</b> Create Window</li>
+            <li><b>Left Click:</b> Select Window</li>
+            <li><b>Delete:</b> Delete Selected Window</li>
+            <li><b>WASD or Left Click Hold and Drag:</b> Move Selected Window</li>
+            <li><b>Up or Down Arrow Keys:</b> Size Up or Down Selected Window</li>
+            <li><b>Left or Right Arrow Keys:</b> Step to Previous or Next Spikes</li>
+            <li><b>SHIFT + Left or Right Arrow Keys:</b> Large Step to Previous or Next Spikes</li>
+            <li><b>SPACE:</b> Create Time Control Point for Selected Window</li>
+            <li><b>Backspace:</b> Delete Time Control Point for Selected Window</li>
+            <li><b>Double Click on Colored Ticks on Spike Scrubber:</b> Navigate to Selected Time Control Point</li>
+        </ul>
+        """
+        window_controls_browser = QTextBrowser(self)
+        window_controls_browser.setHtml(window_controls_text)
+        layout.addWidget(window_controls_browser)
+
+        # Section 3: Time Control Point Controls
+        section3_heading = QLabel("<h3>Time Control Point Controls</h3>")
+        layout.addWidget(section3_heading)
+        time_control_points_text = """
+        <ul>
+            <li><b>SPACE:</b> Create Time Control Point for Selected Window</li>
+            <li><b>Backspace:</b> Delete Time Control Point for Selected Window</li>
+            <li><b>Double Click on Colored Ticks on Spike Scrubber:</b> Colored ticks correspond to starting times of time control points. Navigate to selected Time Control Point</li>
+            <li><b>Info:</b> Time control points determine the location and height of a window for a specific time point in the experiment. 
+            A spike will be sorted using the window corresponding to the closest proceeding time control point to the spike's time. 
+            </li>
+        </ul>
+        """
+        time_control_points_browser = QTextBrowser(self)
+        time_control_points_browser.setHtml(time_control_points_text)
+        layout.addWidget(time_control_points_browser)
+
+        # Close button
+        close_button = QPushButton("Close", self)
+        close_button.clicked.connect(self.close)
+        layout.addWidget(close_button)
+
+        self.setLayout(layout)
 
 if __name__ == '__main__':
     main()
