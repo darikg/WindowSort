@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='windowsort',
-    version='0.2.0',
+    version='0.2.1',
     author='Allen Chen',
     author_email='allenmuhanchen@gmail.com',
     url='https://github.com/EdConnorLab/WindowSort',
