@@ -195,7 +195,7 @@ class MainWindow(QMainWindow):
 
     def show_controls_dialog(self):
         dialog = ControlsDialog(self)
-        dialog.exec_()
+        dialog.show()
 
 
 class ControlsDialog(QDialog):
