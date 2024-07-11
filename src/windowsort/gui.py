@@ -1,6 +1,8 @@
+import argparse
 import configparser
 import os
 import sys
+from pathlib import Path
 
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QApplication, QHBoxLayout, QFileDialog, QMenuBar, QMenu, \
     QAction, QDialog, QLabel, QTextBrowser, QPushButton
@@ -25,21 +27,32 @@ CONFIG_PATH = os.path.join(config_dir, config_file)
 os.makedirs(config_dir, exist_ok=True)
 
 
-def main():
-    app = QApplication(sys.argv)
+def _parse_args():
+    parser = argparse.ArgumentParser(prog='WindowSort', description="Window-based spike sorting GUI")
+    parser.add_argument('-d', '--directory', help='The data directory')
+    return parser.parse_args()
 
+
+def main():
+    args = _parse_args()
+
+    app = QApplication([])
     # Load the default directory
     default_directory = get_default_directory()
 
-    # Create a directory selection dialog
-    options = QFileDialog.Options()
-    options |= QFileDialog.ShowDirsOnly
-    data_directory = QFileDialog.getExistingDirectory(None, "Select Data Directory", default_directory, options=options)
+    if args.directory is None:
+        # Create a directory selection dialog
+        options = QFileDialog.Options()
+        options |= QFileDialog.ShowDirsOnly
+        data_directory = QFileDialog.getExistingDirectory(None, "Select Data Directory", default_directory, options=options)
 
-    # Check if the user pressed cancel (i.e., data_directory is empty)
-    if not data_directory:
-        print("No directory selected. Exiting.")
-        sys.exit()
+        # Check if the user pressed cancel (i.e., data_directory is empty)
+        if not data_directory:
+            print("No directory selected. Exiting.")
+            sys.exit()
+    else:
+        # Allow specifying the current folder as '.' etc
+        data_directory = Path(args.directory).absolute()
 
     # Save the selected directory as the new default
     save_default_directory(data_directory)
